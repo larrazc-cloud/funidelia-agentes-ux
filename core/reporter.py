@@ -11,8 +11,9 @@ ICONOS_CATEGORIA = {
     "graficos": "📊", "decimales": "🔢", "redundancia": "♻️",
     "diseño_corporativo": "🎨", "elementos_tecnicos": "⚙️",
     "jerarquia": "📐", "leyendas": "💬", "cursores": "🖱️",
-    "buscadores": "🔍", "otro": "📌"
+    "buscadores": "🔍", "accesibilidad": "♿", "otro": "📌"
 }
+ICONOS_FUENTE = {"claude": "🤖", "axe-core": "♿", "local": "🔧"}
 
 
 def mostrar_en_terminal(resultado: dict, nombre_proyecto: str, es_corporativa: bool):
@@ -26,6 +27,8 @@ def mostrar_en_terminal(resultado: dict, nombre_proyecto: str, es_corporativa: b
     print(f"  🔴 Alta:  {resultado.get('altos', 0)}")
     print(f"  🟡 Media: {resultado.get('medios', 0)}")
     print(f"  🟢 Baja:  {resultado.get('bajos', 0)}")
+    if resultado.get("de_axe", 0):
+        print(f"\n  🤖 Claude: {resultado.get('de_claude', 0)}  |  ♿ axe-core: {resultado.get('de_axe', 0)}")
 
     if not resultado.get("problemas"):
         print(f"\n  ✅ Sin problemas detectados.")
@@ -35,7 +38,9 @@ def mostrar_en_terminal(resultado: dict, nombre_proyecto: str, es_corporativa: b
     for i, p in enumerate(resultado["problemas"], 1):
         sev = p.get("severidad", "baja")
         cat = p.get("categoria", "otro")
-        print(f"\n  {ICONOS_SEVERIDAD.get(sev,'⚪')} #{i} [{sev.upper()}] {ICONOS_CATEGORIA.get(cat,'📌')} {cat.upper()}")
+        fuente = p.get("fuente", "claude")
+        icono_fuente = ICONOS_FUENTE.get(fuente, "")
+        print(f"\n  {ICONOS_SEVERIDAD.get(sev,'⚪')} #{i} [{sev.upper()}] {ICONOS_CATEGORIA.get(cat,'📌')} {cat.upper()} {icono_fuente} {fuente}")
         print(f"  📍 {p.get('ubicacion', '—')}")
         print(f"  ❗ {p.get('descripcion', '')}")
         print(f"  💡 {p.get('sugerencia', '')}")
@@ -45,6 +50,8 @@ def mostrar_en_terminal(resultado: dict, nombre_proyecto: str, es_corporativa: b
         print(f"  Código:  {resultado['resumen_codigo']}")
     if resultado.get("resumen_visual"):
         print(f"  Visual:  {resultado['resumen_visual']}")
+    if resultado.get("resumen_axe"):
+        print(f"  axe-core: {resultado['resumen_axe']}")
     print(f"{'='*60}\n")
 
 
@@ -59,6 +66,9 @@ def guardar_md(resultado: dict, ruta_proyecto: str, nombre_proyecto: str, es_cor
     medios = resultado.get("medios", 0)
     bajos = resultado.get("bajos", 0)
 
+    de_claude = resultado.get("de_claude", 0)
+    de_axe = resultado.get("de_axe", 0)
+
     lineas = [
         f"# Informe UX (PACO) — {nombre_proyecto}", "",
         f"**Última revisión:** {fecha}  ",
@@ -71,16 +81,26 @@ def guardar_md(resultado: dict, ruta_proyecto: str, nombre_proyecto: str, es_cor
         f"| **Total** | **{total}** |", "",
     ]
 
+    if de_axe:
+        lineas += [
+            "| Fuente | Cantidad |", "|--------|----------|",
+            f"| 🤖 Claude | {de_claude} |",
+            f"| ♿ axe-core | {de_axe} |", "",
+        ]
+
     if resultado.get("problemas"):
         lineas += ["## Problemas detectados", ""]
         for i, p in enumerate(resultado["problemas"], 1):
             sev = p.get("severidad", "baja")
+            fuente = p.get("fuente", "claude")
+            icono_fuente = ICONOS_FUENTE.get(fuente, "")
             lineas += [
                 f"### {ICONOS_SEVERIDAD.get(sev,'⚪')} #{i} — {p.get('descripcion', '')}",
                 f"- **Severidad:** {sev}",
                 f"- **Categoría:** {p.get('categoria', '—')}",
                 f"- **Ubicación:** {p.get('ubicacion', '—')}",
-                f"- **Sugerencia:** {p.get('sugerencia', '—')}", "",
+                f"- **Sugerencia:** {p.get('sugerencia', '—')}",
+                f"- **Fuente:** {icono_fuente} {fuente}", "",
             ]
 
     lineas += ["## Decisiones tomadas", "",

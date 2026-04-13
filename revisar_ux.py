@@ -18,7 +18,7 @@ AGENTE_PATH = "/Users/carlos/Desktop/Proyectos de Claude/Funidelia/Agentes/agent
 sys.path.insert(0, AGENTE_PATH)
 
 from core.capturador import capturar_app
-from core.analizador import analizar_codigo, analizar_capturas, fusionar_resultados
+from core.analizador import analizar_codigo, analizar_capturas, convertir_axe, fusionar_resultados
 from core.reporter import mostrar_en_terminal, guardar_md
 
 
@@ -57,6 +57,7 @@ def cargar_decisiones_previas(ruta_proyecto: str) -> list[str]:
 def main():
     solo_codigo = "--solo-codigo" in sys.argv
     solo_visual = "--solo-visual" in sys.argv
+    responsive = "--responsive" in sys.argv
 
     # Aceptar ruta como argumento o usar directorio actual
     ruta_proyecto = None
@@ -72,8 +73,12 @@ def main():
     nombre_proyecto = config.get("proyecto", Path(ruta_proyecto).name)
     puerto = config.get("puerto", 8501)
 
+    from core.analizador import tiene_api_key
+    modo = "API Claude" if tiene_api_key() else "Local (capturas para Claude Code)"
+
     print(f"\n{'='*60}")
     print(f"  🎨 PACO — Revisión UX: {nombre_proyecto}")
+    print(f"  Modo: {modo}")
     print(f"{'='*60}")
 
     es_corporativa = config.get("corporativa", None)
@@ -85,6 +90,7 @@ def main():
 
     resultado_codigo = {"problemas": [], "resumen": ""}
     resultado_visual = {"problemas": [], "resumen": ""}
+    resultado_axe = {"problemas": [], "resumen": ""}
 
     if not solo_visual:
         print(f"\n  🔎 Analizando código...")
@@ -93,15 +99,20 @@ def main():
 
     if not solo_codigo:
         print(f"\n  📸 Capturando app en localhost:{puerto}...")
-        capturas = capturar_app(puerto)
+        capturas, resultados_axe_raw = capturar_app(puerto, responsive=responsive)
         if capturas:
             print(f"  🔎 Analizando capturas...")
             resultado_visual = analizar_capturas(capturas, es_corporativa, decisiones_previas)
             print(f"  ✅ {len(resultado_visual.get('problemas', []))} problema(s) visual(es)")
         else:
             print(f"  ⚠️  Sin capturas. Solo análisis de código.")
+            resultados_axe_raw = []
 
-    resultado_final = fusionar_resultados(resultado_codigo, resultado_visual)
+        if resultados_axe_raw:
+            resultado_axe = convertir_axe(resultados_axe_raw)
+            print(f"  ♿ {len(resultado_axe.get('problemas', []))} problema(s) de accesibilidad (axe-core)")
+
+    resultado_final = fusionar_resultados(resultado_codigo, resultado_visual, resultado_axe)
     mostrar_en_terminal(resultado_final, nombre_proyecto, es_corporativa)
     guardar_md(resultado_final, ruta_proyecto, nombre_proyecto, es_corporativa)
 
@@ -110,7 +121,11 @@ def main():
         time.sleep(1)
         webbrowser.open(f"http://localhost:{puerto}")
 
-    print(f"\n  📝 Revisa la app y luego dile a Claude Code:")
+    if not tiene_api_key():
+        print(f"\n  📸 Capturas guardadas para análisis visual.")
+        print(f"     Dile a Claude Code:")
+        print(f"     'Lee las capturas en /tmp/paco_capturas/ y analiza la UX'")
+    print(f"\n  📝 Tras revisar, dile a Claude Code:")
     print(f"     'Corrige el #X, ignora el #Y'\n")
 
 
