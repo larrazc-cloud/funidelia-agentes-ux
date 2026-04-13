@@ -7,7 +7,7 @@
 - **Archivos:** 15
 - **Directorios:** 2
 
-- **Commits:** 2
+- **Commits:** 4
 - **Rama activa:** `main`
 
 
@@ -77,13 +77,13 @@ agente-ux/
 
 ## Git
 
-**Ultimo commit:** docs: overview de PACO + documentacion auto-generada por PAT (Carlos, 2026-04-13T12:57:56+02:00)
+**Ultimo commit:** auto: cambios de sesión Claude Code (Carlos, 2026-04-13T14:10:02+02:00)
 
 ### Contribuidores
 
 | Autor | Commits |
 |-------|---------|
-| Carlos | 2 |
+| Carlos | 4 |
 
 
 ### Ramas
