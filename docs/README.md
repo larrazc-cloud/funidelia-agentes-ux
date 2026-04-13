@@ -7,7 +7,7 @@
 - **Archivos:** 15
 - **Directorios:** 2
 
-- **Commits:** 4
+- **Commits:** 5
 - **Rama activa:** `main`
 
 
@@ -77,13 +77,13 @@ agente-ux/
 
 ## Git
 
-**Ultimo commit:** auto: cambios de sesión Claude Code (Carlos, 2026-04-13T14:10:02+02:00)
+**Ultimo commit:** docs: auto-documentacion PAT (Carlos, 2026-04-13T16:46:55+02:00)
 
 ### Contribuidores
 
 | Autor | Commits |
 |-------|---------|
-| Carlos | 4 |
+| Carlos | 5 |
 
 
 ### Ramas
