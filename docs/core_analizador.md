@@ -10,6 +10,11 @@
 ## Funciones
 
 
+### `tiene_api_key()`
+
+
+
+
 ### `analizar_codigo(ruta_proyecto, es_corporativa, decisiones_previas)`
 
 
@@ -20,7 +25,12 @@
 
 
 
-### `fusionar_resultados(resultado_codigo, resultado_visual)`
+### `convertir_axe(resultados_axe)`
+
+Convierte violaciones de axe-core al formato de problemas de PACO.
+
+
+### `fusionar_resultados(resultado_codigo, resultado_visual, resultado_axe)`
 
 
 

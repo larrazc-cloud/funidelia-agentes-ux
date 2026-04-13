@@ -15,9 +15,9 @@
 
 
 
-### `capturar_app(puerto, ruta_salida)`
+### `capturar_app(puerto, ruta_salida, responsive)`
 
-
+Captura pantallas y ejecuta axe-core.
 
 
 

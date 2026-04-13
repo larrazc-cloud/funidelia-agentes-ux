@@ -4,10 +4,10 @@
 
 ## Estructura del proyecto
 
-- **Archivos:** 7
-- **Directorios:** 1
+- **Archivos:** 15
+- **Directorios:** 2
 
-- **Commits:** 1
+- **Commits:** 2
 - **Rama activa:** `main`
 
 
@@ -16,6 +16,7 @@
 ```
 agente-ux/
 ├── core/
+├── docs/
 
 ```
 
@@ -53,7 +54,7 @@ agente-ux/
 > analizador.py
 
 
-- **Funciones:** `analizar_codigo`, `analizar_capturas`, `fusionar_resultados`
+- **Funciones:** `tiene_api_key`, `analizar_codigo`, `analizar_capturas`, `convertir_axe`, `fusionar_resultados`
 
 
 ### core/capturador.py
@@ -76,13 +77,13 @@ agente-ux/
 
 ## Git
 
-**Ultimo commit:** PACO v0.1.0 — Agente revisor de UX (Carlos, 2026-04-13T12:56:33+02:00)
+**Ultimo commit:** docs: overview de PACO + documentacion auto-generada por PAT (Carlos, 2026-04-13T12:57:56+02:00)
 
 ### Contribuidores
 
 | Autor | Commits |
 |-------|---------|
-| Carlos | 1 |
+| Carlos | 2 |
 
 
 ### Ramas
