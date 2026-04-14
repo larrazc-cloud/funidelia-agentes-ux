@@ -348,25 +348,13 @@ Responde SOLO con el JSON. Sin backticks.
 
 
 def _analizar_capturas_local(capturas: list[dict]) -> dict:
-    """Sin API: las capturas se guardan para revisión manual con Claude Code.
-    También hace checks básicos comparando viewports."""
-    problemas = []
+    """Sin API: las capturas se guardan para que Claude Code las analice directamente."""
     rutas = [c['ruta'] for c in capturas]
 
-    # Detectar viewports disponibles
-    viewports = set(c.get('viewport', 'unknown') for c in capturas)
-
-    problemas.append({
-        "severidad": "media",
-        "categoria": "otro",
-        "descripcion": f"Capturas en {len(viewports)} resoluciones guardadas para revisión visual",
-        "ubicacion": ", ".join(rutas),
-        "sugerencia": "Pide a Claude Code: 'Lee las capturas en /tmp/paco_capturas/ y analiza la UX'"
-    })
-
     return {
-        "problemas": problemas,
-        "resumen": f"Sin API key — {len(capturas)} capturas en {len(viewports)} resoluciones guardadas para Claude Code"
+        "problemas": [],
+        "resumen": f"Sin API key — {len(capturas)} capturas guardadas para análisis visual por Claude Code",
+        "capturas_pendientes": rutas,
     }
 
 
@@ -423,4 +411,5 @@ def fusionar_resultados(resultado_codigo: dict, resultado_visual: dict, resultad
         "resumen_visual": resultado_visual.get("resumen", ""),
         "resumen_axe": (resultado_axe or {}).get("resumen", ""),
         "modo": "api" if tiene_api_key() else "local",
+        "capturas_pendientes": resultado_visual.get("capturas_pendientes", []),
     }

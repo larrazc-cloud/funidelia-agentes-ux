@@ -52,7 +52,20 @@ def mostrar_en_terminal(resultado: dict, nombre_proyecto: str, es_corporativa: b
         print(f"  Visual:  {resultado['resumen_visual']}")
     if resultado.get("resumen_axe"):
         print(f"  axe-core: {resultado['resumen_axe']}")
-    print(f"{'='*60}\n")
+    print(f"{'='*60}")
+
+    # Si no hay API key, imprimir instrucciones para Claude Code
+    if resultado.get("modo") == "local" and resultado.get("capturas_pendientes"):
+        print(f"\n  CLAUDE_CODE_ANALISIS_VISUAL_PENDIENTE")
+        print(f"  CAPTURAS_PARA_ANALIZAR:")
+        for ruta in resultado["capturas_pendientes"]:
+            print(f"    {ruta}")
+        print(f"  ES_CORPORATIVA: {es_corporativa}")
+        print(f"  CRITERIOS: Skill UX Funidelia + Criterios universales UX")
+        print(f"  INSTRUCCION: Lee cada captura con Read, analiza problemas de UX")
+        print(f"  visibles (overflow, texto cortado, colores incorrectos, layout")
+        print(f"  roto, elementos solapados) y reporta en el mismo formato de PACO.")
+    print()
 
 
 def guardar_md(resultado: dict, ruta_proyecto: str, nombre_proyecto: str, es_corporativa: bool):
