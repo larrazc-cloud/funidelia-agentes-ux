@@ -21,6 +21,17 @@ de usuario en apps Streamlit.
 NUNCA opinas sobre lógica de negocio, código de backend, ni estructura de datos.
 Solo te centras en lo que el usuario ve y experimenta.
 
+IMPORTANTE sobre proyectos corporativos Funidelia:
+- Cuando detectes problemas de diseño corporativo, SIEMPRE referencia la "Skill UX Funidelia"
+  como fuente de la regla. Ejemplo: "Según la Skill UX Funidelia, los títulos deben usar
+  fuente Atelia" en vez de simplemente "Los títulos no usan la fuente correcta".
+- Si la Skill UX Funidelia no está implementada en absoluto (no hay fuentes, colores ni
+  componentes del design system), repórtalo como un único problema de severidad alta:
+  "La Skill UX Funidelia no está implementada. Aplicar la skill completa antes de revisar
+  problemas individuales."
+- La sugerencia para problemas de diseño corporativo debe incluir: "Consultar la Skill UX
+  Funidelia para los valores exactos."
+
 Respondes SIEMPRE en JSON válido con esta estructura exacta:
 {
   "problemas": [
@@ -121,26 +132,41 @@ def _analizar_codigo_local(ruta_proyecto: str, codigo: str, es_corporativa: bool
     codigo_lower = codigo.lower()
     css_lower = css_content.lower()
 
-    # Checks de design system
+    # Checks de Skill UX Funidelia
     if es_corporativa:
-        if 'atelia' not in css_lower and 'atelia' not in codigo_lower:
+        no_atelia = 'atelia' not in css_lower and 'atelia' not in codigo_lower
+        no_lexend = 'lexenddeca' not in css_lower and 'lexend' not in codigo_lower
+        no_azul = '#428fec' not in css_lower and '#428FEC' not in css_content
+
+        if no_atelia and no_lexend and no_azul:
             problemas.append({
                 "severidad": "alta", "categoria": "diseño_corporativo",
-                "descripcion": "No se detecta la fuente Atelia del design system Funidelia",
-                "ubicacion": "CSS/app.py", "sugerencia": "Añadir @font-face para Atelia"
+                "descripcion": "La Skill UX Funidelia no está implementada. No se detectan fuentes (Atelia, LexendDeca) ni colores corporativos (#428FEC)",
+                "ubicacion": "CSS/app.py",
+                "sugerencia": "Aplicar la Skill UX Funidelia completa antes de revisar problemas individuales. Consultar la Skill UX Funidelia para los valores exactos."
             })
-        if 'lexenddeca' not in css_lower and 'lexend' not in codigo_lower:
-            problemas.append({
-                "severidad": "alta", "categoria": "diseño_corporativo",
-                "descripcion": "No se detecta la fuente LexendDeca del design system Funidelia",
-                "ubicacion": "CSS/app.py", "sugerencia": "Añadir @font-face para LexendDeca"
-            })
-        if '#428fec' not in css_lower and '#428FEC' not in css_content:
-            problemas.append({
-                "severidad": "media", "categoria": "diseño_corporativo",
-                "descripcion": "No se detecta el color primario Funidelia (#428FEC)",
-                "ubicacion": "CSS", "sugerencia": "Usar --color-blue: #428FEC"
-            })
+        else:
+            if no_atelia:
+                problemas.append({
+                    "severidad": "alta", "categoria": "diseño_corporativo",
+                    "descripcion": "Según la Skill UX Funidelia, los títulos principales deben usar fuente Atelia. No se detecta",
+                    "ubicacion": "CSS/app.py",
+                    "sugerencia": "Añadir @font-face para Atelia. Consultar la Skill UX Funidelia para los valores exactos."
+                })
+            if no_lexend:
+                problemas.append({
+                    "severidad": "alta", "categoria": "diseño_corporativo",
+                    "descripcion": "Según la Skill UX Funidelia, el texto general debe usar fuente LexendDeca. No se detecta",
+                    "ubicacion": "CSS/app.py",
+                    "sugerencia": "Añadir @font-face para LexendDeca. Consultar la Skill UX Funidelia para los valores exactos."
+                })
+            if no_azul:
+                problemas.append({
+                    "severidad": "media", "categoria": "diseño_corporativo",
+                    "descripcion": "Según la Skill UX Funidelia, el color primario debe ser #428FEC. No se detecta",
+                    "ubicacion": "CSS",
+                    "sugerencia": "Usar --color-blue: #428FEC. Consultar la Skill UX Funidelia para los valores exactos."
+                })
 
     # Checks de formato
     if ':.4f' in codigo or ':.3f' in codigo:
@@ -201,6 +227,24 @@ def _analizar_codigo_local(ruta_proyecto: str, codigo: str, es_corporativa: bool
             "descripcion": "Tags de problemas mostrados con comas sin separación visual",
             "ubicacion": "app.py (columna problemas en tablas)",
             "sugerencia": "Formatear con ' · '.join() o similar antes de mostrar"
+        })
+
+    # Check: texto largo en columnas de dataframe (se corta)
+    if ('review' in codigo_lower or 'transcript' in codigo_lower or 'texto' in codigo_lower) and 'st.dataframe' in codigo:
+        problemas.append({
+            "severidad": "media", "categoria": "otro",
+            "descripcion": "Texto largo (reviews, descripciones) en columnas de dataframe se corta y no es legible",
+            "ubicacion": "app.py (st.dataframe con columnas de texto largo)",
+            "sugerencia": "Mostrar textos largos fuera de dataframe (st.markdown, st.caption, cards) para que sean legibles completos"
+        })
+
+    # Check: valores None/nan visibles en UI
+    if 'st.dataframe' in codigo and "'None'" not in codigo and 'fillna' not in codigo:
+        problemas.append({
+            "severidad": "baja", "categoria": "otro",
+            "descripcion": "Posibles valores None/nan visibles en tablas",
+            "ubicacion": "app.py (dataframes)",
+            "sugerencia": "Limpiar None/nan con fillna('') o filtro antes de mostrar"
         })
 
     # Check: columnas de dataframe sin width explícito
