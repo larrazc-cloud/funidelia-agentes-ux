@@ -290,6 +290,65 @@ def _analizar_codigo_local(ruta_proyecto: str, codigo: str, es_corporativa: bool
             selector_after_table = True
     # This is a heuristic - the real check is visual
 
+    # Check: font-family en selectores amplios (span, div, *) rompe iconos de Material Symbols de Streamlit
+    # Síntomas: botón colapsar sidebar muestra "keyboard_double_arrow_right",
+    # barra de hot-reload muestra "info" como texto, iconos de notificación rotos
+    import re
+    font_overrides = re.findall(r'font-family[^;]*!important', codigo)
+    broad_selectors = any(
+        sel in codigo for sel in [
+            'span {', 'span{', ', span,', ', span ', 'div {', 'div{',
+            '* {', '*{', '[class*="css"]'
+        ]
+    )
+    has_material_exclude = 'material-symbols' in codigo_lower or 'material_symbols' in codigo_lower
+    if font_overrides and broad_selectors and not has_material_exclude:
+        problemas.append({
+            "severidad": "alta", "categoria": "elementos_tecnicos",
+            "descripcion": "font-family con !important en selectores amplios (span, div, *) rompe los iconos de Streamlit (Material Symbols). "
+                           "Síntomas: botón sidebar muestra 'keyboard_double_arrow_right' como texto, "
+                           "barra de hot-reload muestra 'info' como texto, iconos de notificación rotos",
+            "ubicacion": "CSS/theme (font-family override)",
+            "sugerencia": "Excluir del override: .material-symbols-rounded, .material-symbols-outlined, "
+                          "[data-testid='stSidebarCollapseButton'] span, [data-testid='stStatusWidget'] span, "
+                          "span[class*='material']. Usar font-family: 'Material Symbols Rounded' !important en esos selectores"
+        })
+
+    # Check: texto con opacity baja (<=0.7) sobre fondos de color — casi ilegible
+    opacity_matches = re.findall(r'opacity:\s*(0\.\d+)', codigo)
+    for op in opacity_matches:
+        if float(op) <= 0.7:
+            problemas.append({
+                "severidad": "media", "categoria": "accesibilidad",
+                "descripcion": f"Texto con opacity:{op} puede ser ilegible, especialmente sobre fondos de color. "
+                               "WCAG requiere ratio de contraste mínimo 4.5:1",
+                "ubicacion": "CSS/theme (elemento con opacity baja)",
+                "sugerencia": "Subir opacity a >=0.85 o eliminarla y usar un color con suficiente contraste directamente"
+            })
+            break  # Solo reportar una vez
+
+    # Check: hero/header con padding vertical insuficiente — contenido queda apretado o tapado por header de Streamlit
+    hero_padding_matches = re.findall(r'(?:hero|header|banner).*?padding[:\s]+(\d+)px', codigo, re.DOTALL)
+    for pm in hero_padding_matches:
+        if int(pm) < 24:
+            problemas.append({
+                "severidad": "media", "categoria": "jerarquia",
+                "descripcion": f"Hero/header con padding vertical de {pm}px — insuficiente. "
+                               "El contenido (eyebrow, título) queda apretado o tapado por el header fijo de Streamlit (~50px)",
+                "ubicacion": "CSS/theme (hero header padding)",
+                "sugerencia": "Usar padding-top >= 32px y padding-bottom >= 24px en heroes para dar aire al contenido"
+            })
+            break
+
+    # Check: hero/header con width: 100vw causa overflow horizontal en Streamlit (sidebar ocupa parte del viewport)
+    if '100vw' in codigo and ('header' in codigo_lower or 'hero' in codigo_lower):
+        problemas.append({
+            "severidad": "media", "categoria": "otro",
+            "descripcion": "Elemento header/hero con width: 100vw causa overflow horizontal en Streamlit porque la sidebar ya ocupa ~300px del viewport",
+            "ubicacion": "CSS/theme (hero header)",
+            "sugerencia": "Usar margin negativo (-1rem) en vez de 100vw, o width: 100% para que respete el contenedor de Streamlit"
+        })
+
     return {
         "problemas": problemas,
         "resumen": f"Análisis local (sin API): {len(problemas)} problemas detectados por patrones"

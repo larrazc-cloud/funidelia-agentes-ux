@@ -14,10 +14,12 @@ from datetime import datetime
 
 VIEWPORT_DEFAULT = [
     {"width": 1440, "height": 900, "nombre": "desktop"},
+    {"width": 1140, "height": 900, "nombre": "desktop_sidebar"},
 ]
 
 VIEWPORTS_RESPONSIVE = [
     {"width": 1440, "height": 900, "nombre": "desktop"},
+    {"width": 1140, "height": 900, "nombre": "desktop_sidebar"},
     {"width": 1280, "height": 800, "nombre": "laptop"},
     {"width": 1024, "height": 768, "nombre": "tablet"},
 ]
