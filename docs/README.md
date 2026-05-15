@@ -4,10 +4,10 @@
 
 ## Estructura del proyecto
 
-- **Archivos:** 15
+- **Archivos:** 16
 - **Directorios:** 2
 
-- **Commits:** 156
+- **Commits:** 159
 - **Rama activa:** `main`
 
 
@@ -77,13 +77,13 @@ agente-ux/
 
 ## Git
 
-**Ultimo commit:** docs: auto-documentacion PAT (Carlos, 2026-04-14T15:57:27+02:00)
+**Ultimo commit:** auto: cambios de sesión Claude Code (Carlos, 2026-04-16T11:49:40+02:00)
 
 ### Contribuidores
 
 | Autor | Commits |
 |-------|---------|
-| Carlos | 156 |
+| Carlos | 159 |
 
 
 ### Ramas
