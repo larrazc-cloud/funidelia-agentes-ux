@@ -77,7 +77,7 @@ agente-ux/
 
 ## Git
 
-**Ultimo commit:** docs: auto-documentacion PAT (Carlos, 2026-05-25T19:14:59+02:00)
+**Ultimo commit:** docs: auto-documentacion PAT (Carlos, 2026-05-25T19:28:21+02:00)
 
 ### Contribuidores
 
